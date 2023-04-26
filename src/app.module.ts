@@ -7,11 +7,12 @@ import { CacheModule } from './cache/cache.module';
 import { CityModule } from './city/city.module';
 import { StateModule } from './state/state.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.development.home'],
+      envFilePath: ['.env.development.local'],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -28,6 +29,7 @@ import { UserModule } from './user/user.module';
     CityModule,
     AddressModule,
     CacheModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
