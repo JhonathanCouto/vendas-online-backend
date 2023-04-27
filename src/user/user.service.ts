@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadGatewayException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcrypt';
 import { Repository } from 'typeorm';
@@ -14,6 +18,14 @@ export class UserService {
   ) {}
 
   async add(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const user = await this.findUserByEmail(createUserDto.email).catch(
+      () => undefined,
+    );
+
+    if (user) {
+      throw new BadGatewayException('Email already exists!');
+    }
+
     const saltOrRounds = 10;
 
     const passwordHashed = await hash(createUserDto.password, saltOrRounds);
@@ -30,7 +42,13 @@ export class UserService {
       where: {
         id: userId,
       },
-      relations: ['address'],
+      relations: {
+        addresses: {
+          city: {
+            state: true,
+          },
+        },
+      },
     });
   }
 
@@ -58,6 +76,10 @@ export class UserService {
         email,
       },
     });
+
+    if (!user) {
+      throw new NotFoundException(`Email: ${email} Not Found`);
+    }
 
     return user;
   }
