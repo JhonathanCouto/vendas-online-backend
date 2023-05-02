@@ -3,9 +3,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { CacheService } from '../../cache/cache.service';
+import { cityMock } from '../__mocks__/city.mock';
 import { CityService } from '../city.service';
 import { CityEntity } from '../entities/city.entity';
-import { cityMock } from '../__mocks__/city.mock';
 
 describe('CityService', () => {
   let service: CityService;
@@ -18,13 +18,13 @@ describe('CityService', () => {
         {
           provide: CacheService,
           useValue: {
-            getCache: jest.fn().mockResolvedValue({ cityMock }),
+            getCache: jest.fn().mockResolvedValue([cityMock]),
           },
         },
         {
           provide: getRepositoryToken(CityEntity),
           useValue: {
-            find: jest.fn().mockResolvedValue([]),
+            findOne: jest.fn().mockResolvedValue(cityMock),
           },
         },
       ],
@@ -39,5 +39,23 @@ describe('CityService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
     expect(cityRepository).toBeDefined();
+  });
+
+  it('should return findOne City', async () => {
+    const city = await service.findCityById(cityMock.id);
+
+    expect(city).toEqual(cityMock);
+  });
+
+  it('should return error findOne not found', async () => {
+    jest.spyOn(cityRepository, 'findOne').mockResolvedValue(undefined);
+
+    expect(service.findCityById(cityMock.id)).rejects.toThrowError();
+  });
+
+  it('should return Cities in getByStateId', async () => {
+    const city = await service.getByStateId(cityMock.id);
+
+    expect(city).toEqual([cityMock]);
   });
 });
