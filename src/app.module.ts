@@ -17,7 +17,7 @@ import { ProductModule } from './product/product.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.development.local'],
+      envFilePath: ['.env.development.home'],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
